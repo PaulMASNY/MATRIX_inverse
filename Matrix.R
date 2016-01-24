@@ -2,7 +2,6 @@
 git remote add origin https://github.com/PaulMASNY/MAT_inverse.git
 git push -u origin master
 
-
 k   <- 2000
 rho <- .8
 
@@ -15,35 +14,31 @@ det(matTest)
 system.time(solve(matTest))
 
 #-----------------------------------------------------------------------------------------
+
 makeCacheMatrix<- function(x = matrix()) {
-    inv <- NULL
-    set <- function(y) {
-        x <<- y
-        inv <<- NULL
-    }
+    inv <- c()
+    set <- function(y) { x <<- y ; inv <<- c() }
     get <- function() x
     setinverse <- function(inverse) inv <<- inverse
     getinverse <- function() inv
     list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
 }
 
-system.time(makeCacheMatrix(matTest))
+makeCacheMatrix(matTest)
 
 #-----------------------------------------------------------------------------------------
 
 cacheSolve <- function(x, ...) {
     inv <- x$getinverse()
-    if(!is.null(inv)) {
-        print("vide le cache")
-        return(inv)
-    }
+    if(!is.null(inv)) { print("vide le cache"); return(inv) }
     data <- x$get()
     inv <- solve(data)
     x$setinverse(inv)
     inv
 }
-#-----------------------------------------------------------------------------------------
+
 cacheSolve(matTest)
 
+#-----------------------------------------------------------------------------------------
 
 

@@ -1,6 +1,4 @@
-
 <!-- R Commander Markdown Template -->
-
 
 
 
@@ -25,7 +23,9 @@ Computing the inverse of a square matrix can be done with the solve function in 
 
 
 
-According to the R help : *The operators <<- and ->> are normally only used in functions, and cause a search to made through parent environments for an existing definition of the variable being assigned.*
+According to the R help : 
+- The operators **<<-** and **->>** are normally only used in functions, and cause a search to made through parent environments for an existing definition of the variable being assigned.
+
 According to the Hadley Wickham's book, R has four special environments :
 - The **globalenv()**,or global environment,is the interactive workspace.This is the environment in which you normally work.The parent of
 the global environment is the last package that you attached with library() or require().
@@ -33,32 +33,30 @@ the global environment is the last package that you attached with library() or r
 - The **emptyenv()**,or empty environment,is the ultimate ancestor of all environments,and the only environment without a parent.
 - The **environment()**is the current environment.
 
-The regular assignment arrow, <- ,always creates a variable in the current environment.The deep assignment arrow, <<- ,never creates avariable in the current environment,bu tinsteadmodiﬁesanexistingvariable
-foundbywalkinguptheparentenvironments.Youcanalsododeep bindingwithassign():name <<- valueisequivalenttoassign("name", value,inherits = TRUE).
+The regular assignment arrow,**<-** ,always creates a variable in the current environment. The deep assignment arrow,**<<-** ,never creates a variable in the current environment,but instead modifies an existing variable found by walking up the parent environments. You can also do deep binding with **assign():name <<- value** is equivalent to **assign("name", value,inherits = TRUE)**.
+If **<<-** does not find an existing variable,it will create one in the global environment. This is usually undesirable,because global variables introduce non-obvious dependencies between functions.**<<-** is most often used in conjunction with a closure.
 
-If<<-doesnâtï¬ndanexistingvariable,itwillcreateoneintheglobal environment.Thisisusuallyundesirable,becauseglobalvariablesin-
-troducenon-obviousdependenciesbetweenfunctions.<<-ismostoften usedinconjunctionwit
-
+The resulting function will search for a cached variable created by makeCacheMatrix().
 
 ##### Test Matrix
 
 This matrix is generated using a set of real numbers, more prone to a heavier processor use than their integer counterparts.
 Also, it should be mentioned that a successful generation of non-singular matrices is a quite separate mathematical problem !
-Here I have helped myself by injecting a set of 1 in the diagonal. As a result, we have a truly invertible 2000x2000 matrix down here :  
+Here I have helped myself by injecting a set of 1 in the diagonal. As a result, we have a truly invertible 2000 x 2000 matrix down here :  
 
 
 ```r
-iv   <- 2000
-fill <- .3
-
-matTest <- matrix(rep(fill, k*k), nrow=k)
-diag(matTest) <- 1
-
-dim(matTest)
-det(matTest)
-
-# Let's test the inversion execution time :
-system.time(solve(matTest))
+> iv   <- 2000
+> fill <- .3
+> 
+> matTest <- matrix(rep(fill, k*k), nrow=k)
+> diag(matTest) <- 1
+> 
+> dim(matTest)
+> det(matTest)
+> 
+> # Let's test the inversion execution time :
+> system.time(solve(matTest))
 ```
 
 ##### The Matrix inversing function
@@ -66,19 +64,44 @@ system.time(solve(matTest))
 
 
 ```r
-makeCacheMatrix<- function(x = matrix()) {
-    inv <- c()
-    set <- function(y) {
-        x <<- y
-        inv <<- c()
-    }
-    get <- function() x
-    setinverse <- function(inverse) inv <<- inverse
-    getinverse <- function() inv
-    list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
-}
+> makeCacheMatrix<- function(x = matrix()) {
++     inv <- c()
++     set <- function(y) {
++         x <<- y
++         inv <<- c()
++     }
++     get <- function() x
++     setinverse <- function(inverse) inv <<- inverse
++     getinverse <- function() inv
++     list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
++ }
+> 
+> makeCacheMatrix(matTest)
+```
 
-makeCacheMatrix(matTest)
+```
+$set
+function (y) 
+{
+    x <<- y
+    inv <<- c()
+}
+<environment: 0x866fcb0>
+
+$get
+function () 
+x
+<environment: 0x866fcb0>
+
+$setinverse
+function (inverse) 
+inv <<- inverse
+<environment: 0x866fcb0>
+
+$getinverse
+function () 
+inv
+<environment: 0x866fcb0>
 ```
 
 
@@ -86,22 +109,22 @@ makeCacheMatrix(matTest)
 
 
 ```r
-cacheSolve <- function(x, ...) {
-    inv <- x$getinverse()
-    if(!is.null(inv)) {
-        print("vide le cache")
-        return(inv)
-    }
-    data <- x$get()
-    inv <- solve(data)
-    x$setinverse(inv)
-    inv
-}
-
-cacheSolve(matTest)
+> cacheSolve <- function(x, ...) {
++     inv <- x$getinverse()
++     if(!is.null(inv)) {
++         print("vide le cache")
++         return(inv)
++     }
++     data <- x$get()
++     inv <- solve(data)
++     x$setinverse(inv)
++     inv
++ }
+> 
+> cacheSolve(matTest)
 ```
 
-As we can consider by looking on the **Test Matrix** section above, the caching technique improves computation on our object by nearly 29 seconds. A non-negligible amount of time!
+As we can consider by looking at the **Test Matrix** section above, the caching technique improves computation on our object by nearly 29 seconds. A non-negligible amount of time on AMD 10-2.7 GHz!
  
 #### Conclusion
 
@@ -115,6 +138,16 @@ I suggest to try also a somewhat different, but very effective combination of mu
 **Contact**
 
 - [Paul MASNY] paul.masny@securesafety.org
+
+
+
+
+
+
+
+
+
+
 
 
 

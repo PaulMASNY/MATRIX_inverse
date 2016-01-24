@@ -225,8 +225,13 @@ The technique below uses both R lazy evaluation and different assignment operato
 
 <h4>Solution approach</h4>
 
-<p>According to the R help : <em>The operators &lt;&lt;- and -&gt;&gt; are normally only used in functions, and cause a search to made through parent environments for an existing definition of the variable being assigned.</em>
-According to the Hadley Wickham&#39;s book, R has four special environments :</p>
+<p>According to the R help : </p>
+
+<ul>
+<li>The operators <strong>&lt;&lt;-</strong> and <strong>-&gt;&gt;</strong> are normally only used in functions, and cause a search to made through parent environments for an existing definition of the variable being assigned.</li>
+</ul>
+
+<p>According to the Hadley Wickham&#39;s book, R has four special environments :</p>
 
 <ul>
 <li>The <strong>globalenv()</strong>,or global environment,is the interactive workspace.This is the environment in which you normally work.The parent of
@@ -236,66 +241,89 @@ the global environment is the last package that you attached with library() or r
 <li>The <strong>environment()</strong>is the current environment.</li>
 </ul>
 
-<p>The regular assignment arrow, &lt;- ,always creates a variable in the current environment.The deep assignment arrow, &lt;&lt;- ,never creates avariable in the current environment,bu tinsteadmodiﬁesanexistingvariable
-foundbywalkinguptheparentenvironments.Youcanalsododeep bindingwithassign():name &lt;&lt;- valueisequivalenttoassign(&ldquo;name&rdquo;, value,inherits = TRUE).</p>
+<p>The regular assignment arrow,<strong>&lt;-</strong> ,always creates a variable in the current environment. The deep assignment arrow,<strong>&lt;&lt;-</strong> ,never creates a variable in the current environment,but instead modifies an existing variable found by walking up the parent environments. You can also do deep binding with <strong>assign():name &lt;&lt;- value</strong> is equivalent to <strong>assign(&ldquo;name&rdquo;, value,inherits = TRUE)</strong>.
+If <strong>&lt;&lt;-</strong> does not find an existing variable,it will create one in the global environment. This is usually undesirable,because global variables introduce non-obvious dependencies between functions.<strong>&lt;&lt;-</strong> is most often used in conjunction with a closure.</p>
 
-<p>If&lt;&lt;-doesnâtï¬ndanexistingvariable,itwillcreateoneintheglobal environment.Thisisusuallyundesirable,becauseglobalvariablesin-
-troducenon-obviousdependenciesbetweenfunctions.&lt;&lt;-ismostoften usedinconjunctionwit</p>
+<p>The resulting function will search for a cached variable created by makeCacheMatrix().</p>
 
 <h5>Test Matrix</h5>
 
 <p>This matrix is generated using a set of real numbers, more prone to a heavier processor use than their integer counterparts.
 Also, it should be mentioned that a successful generation of non-singular matrices is a quite separate mathematical problem !
-Here I have helped myself by injecting a set of 1 in the diagonal. As a result, we have a truly invertible 2000x2000 matrix down here :  </p>
+Here I have helped myself by injecting a set of 1 in the diagonal. As a result, we have a truly invertible 2000 x 2000 matrix down here :  </p>
 
-<pre><code class="r">iv   &lt;- 2000
-fill &lt;- .3
-
-matTest &lt;- matrix(rep(fill, k*k), nrow=k)
-diag(matTest) &lt;- 1
-
-dim(matTest)
-det(matTest)
-
-# Let&#39;s test the inversion execution time :
-system.time(solve(matTest))
+<pre><code class="r">&gt; iv   &lt;- 2000
+&gt; fill &lt;- .3
+&gt; 
+&gt; matTest &lt;- matrix(rep(fill, k*k), nrow=k)
+&gt; diag(matTest) &lt;- 1
+&gt; 
+&gt; dim(matTest)
+&gt; det(matTest)
+&gt; 
+&gt; # Let&#39;s test the inversion execution time :
+&gt; system.time(solve(matTest))
 </code></pre>
 
 <h5>The Matrix inversing function</h5>
 
-<pre><code class="r">makeCacheMatrix&lt;- function(x = matrix()) {
-    inv &lt;- c()
-    set &lt;- function(y) {
-        x &lt;&lt;- y
-        inv &lt;&lt;- c()
-    }
-    get &lt;- function() x
-    setinverse &lt;- function(inverse) inv &lt;&lt;- inverse
-    getinverse &lt;- function() inv
-    list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
-}
+<pre><code class="r">&gt; makeCacheMatrix&lt;- function(x = matrix()) {
++     inv &lt;- c()
++     set &lt;- function(y) {
++         x &lt;&lt;- y
++         inv &lt;&lt;- c()
++     }
++     get &lt;- function() x
++     setinverse &lt;- function(inverse) inv &lt;&lt;- inverse
++     getinverse &lt;- function() inv
++     list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
++ }
+&gt; 
+&gt; makeCacheMatrix(matTest)
+</code></pre>
 
-makeCacheMatrix(matTest)
+<pre><code>$set
+function (y) 
+{
+    x &lt;&lt;- y
+    inv &lt;&lt;- c()
+}
+&lt;environment: 0x866fcb0&gt;
+
+$get
+function () 
+x
+&lt;environment: 0x866fcb0&gt;
+
+$setinverse
+function (inverse) 
+inv &lt;&lt;- inverse
+&lt;environment: 0x866fcb0&gt;
+
+$getinverse
+function () 
+inv
+&lt;environment: 0x866fcb0&gt;
 </code></pre>
 
 <h5>Matrix caching function</h5>
 
-<pre><code class="r">cacheSolve &lt;- function(x, ...) {
-    inv &lt;- x$getinverse()
-    if(!is.null(inv)) {
-        print(&quot;vide le cache&quot;)
-        return(inv)
-    }
-    data &lt;- x$get()
-    inv &lt;- solve(data)
-    x$setinverse(inv)
-    inv
-}
-
-cacheSolve(matTest)
+<pre><code class="r">&gt; cacheSolve &lt;- function(x, ...) {
++     inv &lt;- x$getinverse()
++     if(!is.null(inv)) {
++         print(&quot;vide le cache&quot;)
++         return(inv)
++     }
++     data &lt;- x$get()
++     inv &lt;- solve(data)
++     x$setinverse(inv)
++     inv
++ }
+&gt; 
+&gt; cacheSolve(matTest)
 </code></pre>
 
-<p>As we can consider by looking on the <strong>Test Matrix</strong> section above, the caching technique improves computation on our object by nearly 29 seconds. A non-negligible amount of time!</p>
+<p>As we can consider by looking at the <strong>Test Matrix</strong> section above, the caching technique improves computation on our object by nearly 29 seconds. A non-negligible amount of time on AMD 10-2.7 GHz!</p>
 
 <h4>Conclusion</h4>
 
