@@ -255,14 +255,27 @@ Here I have helped myself by injecting a set of 1 in the diagonal. As a result, 
 <pre><code class="r">&gt; iv   &lt;- 2000
 &gt; fill &lt;- .3
 &gt; 
-&gt; matTest &lt;- matrix(rep(fill, k*k), nrow=k)
+&gt; matTest &lt;- matrix(rep(fill, iv*iv), nrow=iv)
 &gt; diag(matTest) &lt;- 1
 &gt; 
 &gt; dim(matTest)
-&gt; det(matTest)
-&gt; 
-&gt; # Let&#39;s test the inversion execution time :
+</code></pre>
+
+<pre><code>[1] 2000 2000
+</code></pre>
+
+<pre><code class="r">&gt; det(matTest)
+</code></pre>
+
+<pre><code>[1] 1.347844e-307
+</code></pre>
+
+<pre><code class="r">&gt; # Let&#39;s test the inversion execution time :
 &gt; system.time(solve(matTest))
+</code></pre>
+
+<pre><code>utilisateur     système      écoulé 
+     29.183       0.000      29.009 
 </code></pre>
 
 <h5>The Matrix inversing function</h5>
@@ -288,22 +301,22 @@ function (y)
     x &lt;&lt;- y
     inv &lt;&lt;- c()
 }
-&lt;environment: 0x866fcb0&gt;
+&lt;environment: 0x9f7b2a8&gt;
 
 $get
 function () 
 x
-&lt;environment: 0x866fcb0&gt;
+&lt;environment: 0x9f7b2a8&gt;
 
 $setinverse
 function (inverse) 
 inv &lt;&lt;- inverse
-&lt;environment: 0x866fcb0&gt;
+&lt;environment: 0x9f7b2a8&gt;
 
 $getinverse
 function () 
 inv
-&lt;environment: 0x866fcb0&gt;
+&lt;environment: 0x9f7b2a8&gt;
 </code></pre>
 
 <h5>Matrix caching function</h5>

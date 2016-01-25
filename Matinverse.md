@@ -49,14 +49,32 @@ Here I have helped myself by injecting a set of 1 in the diagonal. As a result, 
 > iv   <- 2000
 > fill <- .3
 > 
-> matTest <- matrix(rep(fill, k*k), nrow=k)
+> matTest <- matrix(rep(fill, iv*iv), nrow=iv)
 > diag(matTest) <- 1
 > 
 > dim(matTest)
+```
+
+```
+[1] 2000 2000
+```
+
+```r
 > det(matTest)
-> 
+```
+
+```
+[1] 1.347844e-307
+```
+
+```r
 > # Let's test the inversion execution time :
 > system.time(solve(matTest))
+```
+
+```
+utilisateur     système      écoulé 
+     29.183       0.000      29.009 
 ```
 
 ##### The Matrix inversing function
@@ -86,22 +104,22 @@ function (y)
     x <<- y
     inv <<- c()
 }
-<environment: 0x866fcb0>
+<environment: 0x9f7b2a8>
 
 $get
 function () 
 x
-<environment: 0x866fcb0>
+<environment: 0x9f7b2a8>
 
 $setinverse
 function (inverse) 
 inv <<- inverse
-<environment: 0x866fcb0>
+<environment: 0x9f7b2a8>
 
 $getinverse
 function () 
 inv
-<environment: 0x866fcb0>
+<environment: 0x9f7b2a8>
 ```
 
 
@@ -138,6 +156,9 @@ I suggest to try also a somewhat different, but very effective combination of mu
 **Contact**
 
 - [Paul MASNY] paul.masny@securesafety.org
+
+
+
 
 
 
