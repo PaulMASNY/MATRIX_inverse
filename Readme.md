@@ -155,7 +155,7 @@ I suggest to try also a somewhat different, but very effective combination of mu
 
 **Contact**
 
-- [Paul MASNY] paul.masny@securesafety.org
+- [Paul MASNY] data.analysis@numericable.fr
 
 
 
